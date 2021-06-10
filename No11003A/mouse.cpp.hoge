@@ -1,0 +1,85 @@
+#include <arduino.h>
+
+
+const char ms_cursor[9*6]={
+1,1,0,0,0,0,
+1,2,1,0,0,0,
+1,2,2,1,0,0,
+1,2,2,2,1,0,
+1,2,2,2,1,1,
+1,2,2,1,0,0,
+1,2,1,2,1,0,
+1,1,0,1,2,1,
+1,0,0,0,1,0,
+};
+
+short ms_cur_buf[9*6];
+int ms_cur_flag;
+int ms_cur_x = 160;
+int ms_cur_y = 120;
+
+/********************************************************************************/
+/*		ms_cur_draw																*/
+/********************************************************************************/
+void ms_cur_draw()
+{
+	int i;
+	
+	lcd_area_set(ms_cur_x-1, ms_cur_y-1, ms_cur_x+4, ms_cur_y+7);
+	lcd_write_cmd(MemoryWrite);
+	for(i=0; i<6*9; i++){
+		if(ms_cursor[i]==0)
+			lcd_write_color(ms_cur_buf[i]);
+		else if(ms_cursor[i]==1)
+			lcd_write_color(0);
+		else
+			lcd_write_color(0xffff);
+	}
+}
+/********************************************************************************/
+/*		ms_cur_on																*/
+/********************************************************************************/
+void ms_cur_on()
+{
+	if(ms_cur_flag){
+//        ms_cur_draw();
+        return;		 					// 既に ON している
+    }
+    ms_cur_flag = 1;
+	lcd_read_square(ms_cur_x-1, ms_cur_y-1, 6, 9, ms_cur_buf);
+	ms_cur_draw();
+}
+/********************************************************************************/
+/*		ms_cur_off																*/
+/********************************************************************************/
+void ms_cur_off()
+{
+	if(ms_cur_flag==0)
+		return;								// 既に OFF している
+    ms_cur_flag = 0;
+	lcd_write_square(ms_cur_x-1, ms_cur_y-1, 6, 9, ms_cur_buf);
+}
+/********************************************************************************/
+/*		ms_cur_move																*/
+/********************************************************************************/
+void ms_cur_move()
+{
+	static int x_sum, y_sum;
+	
+	if(ms_cur_flag){					// カーソル表示中
+		ms_cur_off();
+		
+		x_sum += mouse_x;
+		y_sum += mouse_y;
+		if(x_sum < 1*X_DIV)       x_sum = 1*X_DIV;
+		if(x_sum > (319-4)*X_DIV) x_sum = (319-4)*X_DIV;
+		if(y_sum < 1*Y_DIV)       y_sum = 1*Y_DIV;
+		if(y_sum > (239-7)*Y_DIV) y_sum = (239-7)*Y_DIV;
+		ms_cur_x = x_sum / X_DIV;
+		ms_cur_y = y_sum / Y_DIV;
+		mouse_x = 0;
+		mouse_y = 0;
+		
+		ms_cur_on();
+	}
+}

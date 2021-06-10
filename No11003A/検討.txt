@@ -1,0 +1,19 @@
+arduino DUE mouse でスタックする
+
+usb.Task();　でスタックしているらしい（timeout 待ち）
+    devConfig[i]->Poll();　でスタックしているらしい
+        InTransfer()  でスタックしているらしい
+            dispatchPkt()  でスタックしているらしい
+
+
+dispatchPkt() ループを止めて１回で return 1234567; とする
+dispatchPkt() call はローカルにループさせる
+
+***  ここまで　"src - 中間保存１"
+
+InTransfer() ではループさせずに return 1234567; とする
+InTransfer() call はローカルにループさせる
+
+***  ここまで  "src - 中間保存２"
+
+inTransfer() ではループさせずに return 1234567; とする

@@ -1,0 +1,15 @@
+No11000B
+  digitalWrite() でポートを叩いたが非常に遅かった
+
+No11000C
+  Port_RS->PIO_CODR = Mask_RS;  でポートを叩いた 10倍くらい早くなり実用になると思う
+
+
+
+
+SAM3X8E の IOレジスタには下記の様なものが有る
+PIO_OWER、PIO_OSER、PIO_CODR、PIO_SODR、PIO_ODSR
+
+ODSR: 32ビットの出力レジスタ
+
+tch.cpp の修正中　tch_int() 修正完了
